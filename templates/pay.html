@@ -37,8 +37,39 @@
   </style>
 </head>
 <body>
-  <h1>Welcome</h1>
-  <p>Click the Pay button to proceed to checkout</p>
-  <a href="/pay"><button>Pay</button></a>
+  <h1>Paymob Demo</h1>
+
+  <!-- زر يدخلك لـ old flow (/pay) -->
+  <a href="/pay"><button>Pay (old auth/order -> iframe)</button></a>
+
+  <hr>
+
+  <!-- فورم ينادي create-intention (POST) -->
+  <form action="/create-intention" method="post" id="intentForm">
+    <input type="hidden" name="amount" value="10000">
+    <button type="submit">Create Intention (new flow)</button>
+  </form>
+
+  <script>
+    // send JSON POST instead of form-encoded (fetch) for create-intention
+    document.getElementById('intentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      fetch('/create-intention', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ amount: 10000 })
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (json.checkout_url) {
+          window.location.href = json.checkout_url;
+        } else {
+          alert(JSON.stringify(json));
+        }
+      })
+      .catch(err => alert('Error: ' + err));
+    });
+  </script>
 </body>
 </html>
+
